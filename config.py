@@ -28,9 +28,14 @@
 # Github: https://github.com/aploium/zmirror
 
 # ############## Local Domain Settings ##############
-my_host_name = '127.0.0.1'
+my_host_name = 'd.zm.guge.cf'
 my_host_scheme = 'http://'
-my_host_port = None  # None表示使用默认端口, 可以设置成非标准端口, 比如 81
+my_host_port = 8090  # None表示使用默认端口, 可以设置成非标准端口, 比如 81
+
+developer_temporary_disable_ssrf_prevention = True
+custom_text_rewriter_enable = True
+verbose_level = 2
+local_cache_enable = False
 
 # ############## Target Domain Settings ##############
 target_domain = 'www.google.com.hk'
@@ -212,15 +217,23 @@ external_domains = (
     'm.googlemail.com',
     'mail-settings.google.com',
     'm.android.com',
+
+    'www.youtube.com',
+    's.ytimg.com',
+    'i.ytimg.com',
+    'i1.ytimg.com',
+
+    'tumblr.com',
 )
 
 # 强制所有Google站点使用HTTPS
 force_https_domains = 'ALL'
+force_https_domains_whitelist = ('tumblr.com','*.tumblr.com',)
 
 # 自动动态添加域名
 enable_automatic_domains_whitelist = True
 domains_whitelist_auto_add_glob_list = (
-    '*.google.com', '*.gstatic.com', '*.google.com.hk', '*.googleapis.com', "*.googleusercontent.com",)
+    '*.google.com', '*.gstatic.com', '*.google.com.hk', '*.googleapis.com', "*.googleusercontent.com",'*.tumblr.com',)
 
 # ############## Proxy Settings ##############
 # 如果你在墙内使用本配置文件, 请指定一个墙外的http代理
@@ -242,6 +255,8 @@ url_custom_redirect_enable = True
 url_custom_redirect_list = {
     # 这是一个方便的设置, 如果你访问 /wiki ,程序会自动重定向到后面这个长长的wiki首页
     '/wiki': '/extdomains/https-zh.wikipedia.org/',
+    '/ytb': '/extdomains/https-www.youtube.com/',
+    '/t': '/extdomains/https-www.twitter.com/',
     # 这是gmail
     '/gmail': '/extdomains/mail.google.com/mail/u/0/h/girbaeneuj90/',
 }
