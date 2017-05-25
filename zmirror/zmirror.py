@@ -618,7 +618,9 @@ def try_match_and_add_domain_to_rewrite_white_list(domain, force_add=False):
         return False
     if domain in allowed_domains_set:
         return True
-    if not force_add and not is_domain_match_glob_whitelist(domain):
+    if not force_add and is_domain_match_glob_whitelist(domain,domains_whitelist_ignore_glob_list):
+        return False
+    if not force_add and not is_domain_match_glob_whitelist(domain,domains_whitelist_auto_add_glob_list):
         return False
 
     infoprint('A domain:', domain, 'was added to external_domains list')
@@ -683,7 +685,7 @@ def decode_mirror_url(mirror_url=None):
             real_domain = real_domain[6:]
             _is_https = True
         else:
-            # 如果是 /extdomains/域名 形式, 没有 "https-" 那么根据域名判断是否使用HTTPS
+                # 显式指定了 /extdomains/http-域名
             _is_https = is_target_domain_use_https(real_domain)
 
         real_path_query = client_requests_text_rewrite(real_path_query)
@@ -1467,7 +1469,7 @@ def response_content_rewrite():
         # debug用代码, 对正常运行无任何作用
         infoprint('StringTrace: appears in the RAW remote response text, code line no. ', current_line_number())
 
-    # try to apply custom rewrite function
+    # then do the normal rewrites
     if custom_text_rewriter_enable:
         resp_text2 = custom_response_text_rewriter(resp_text, parse.mime, parse.remote_url)
         if isinstance(resp_text2, str):

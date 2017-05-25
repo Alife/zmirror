@@ -205,13 +205,13 @@ def check_global_ua_pass(ua_str):
 
 
 @lru_cache(maxsize=1024)
-def is_domain_match_glob_whitelist(domain):
+def is_domain_match_glob_whitelist(domain,list):
     """
     域名是否匹配 `domains_whitelist_auto_add_glob_list` 中设置的通配符
     :type domain: str
     :rtype: bool
     """
-    for domain_glob in domains_whitelist_auto_add_glob_list:
+    for domain_glob in list:
         if fnmatch(domain, domain_glob):
             return True
     return False
