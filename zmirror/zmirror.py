@@ -138,6 +138,7 @@ allowed_domains_set = external_domains_set.copy()
 allowed_domains_set.add(target_domain)
 for _domain in external_domains:  # for support domain with port
     allowed_domains_set.add(urlsplit('http://' + _domain).hostname)
+force_https_domains_whitelist = load_list_from_file('automatic_force_https_domains_whitelist')
 
 domain_alias_to_target_set = set()  # 那些被视为主域名的域名, 如 www.google.com和google.com可以都被视为主域名
 domain_alias_to_target_set.add(target_domain)
@@ -764,8 +765,12 @@ convert_to_mirror_url = encode_mirror_url
 def is_target_domain_use_https(domain):
     """请求目标域名时是否使用https"""
     if force_https_domains == 'NONE':
+        if domain in force_https_domains_whitelist:
+            return True
         return False
     if force_https_domains == 'ALL':
+        if domain in force_https_domains_whitelist:
+            return False
         return True
     if domain in force_https_domains:
         return True
@@ -1205,25 +1210,6 @@ def is_denied_because_of_spider(ua_str):
         return False
 
 
-def load_ip_whitelist_file():
-    """从文件加载ip白名单"""
-    set_buff = set()
-    if os.path.exists(zmirror_root(human_ip_verification_whitelist_file_path)):
-        with open(zmirror_root(human_ip_verification_whitelist_file_path), 'r', encoding='utf-8') as fp:
-            set_buff.add(fp.readline().strip())
-    return set_buff
-
-
-def append_ip_whitelist_file(ip_to_allow):
-    """写入ip白名单到文件"""
-    try:
-        with open(zmirror_root(human_ip_verification_whitelist_file_path), 'a', encoding='utf-8') as fp:
-            fp.write(ip_to_allow + '\n')
-    except:  # coverage: exclude
-        errprint('Unable to write whitelist file')
-        traceback.print_exc()
-
-
 def ip_whitelist_add(ip_to_allow, info_record_dict=None):
     """添加ip到白名单, 并写入文件"""
     if ip_to_allow in single_ip_allowed_set:
@@ -1231,7 +1217,7 @@ def ip_whitelist_add(ip_to_allow, info_record_dict=None):
     dbgprint('ip white added', ip_to_allow, 'info:', info_record_dict)
     single_ip_allowed_set.add(ip_to_allow)
     is_ip_not_in_allow_range.cache_clear()
-    append_ip_whitelist_file(ip_to_allow)
+    append_list_to_file(human_ip_verification_whitelist_file_path,ip_to_allow)
     # dbgprint(single_ip_allowed_set)
     try:
         with open(zmirror_root(human_ip_verification_whitelist_log), 'a', encoding='utf-8') as fp:
@@ -1470,6 +1456,9 @@ def response_content_rewrite():
         infoprint('StringTrace: appears in the RAW remote response text, code line no. ', current_line_number())
 
     # then do the normal rewrites
+    resp_text = response_text_rewrite(resp_text)
+
+    # then do the normal rewrites
     if custom_text_rewriter_enable:
         resp_text2 = custom_response_text_rewriter(resp_text, parse.mime, parse.remote_url)
         if isinstance(resp_text2, str):
@@ -1483,9 +1472,6 @@ def response_content_rewrite():
         if developer_string_trace is not None and developer_string_trace in resp_text:
             # debug用代码, 对正常运行无任何作用
             infoprint('StringTrace: appears after custom text rewrite, code line no. ', current_line_number())
-
-    # then do the normal rewrites
-    resp_text = response_text_rewrite(resp_text)
 
     if developer_string_trace is not None and developer_string_trace in resp_text:
         # debug用代码, 对正常运行无任何作用
@@ -2533,7 +2519,7 @@ for _domain in allowed_domains_set:
     prefix_buff[_domain] = calc_domain_replace_prefix(_domain)
 
 if human_ip_verification_enabled:
-    single_ip_allowed_set = load_ip_whitelist_file()
+    single_ip_allowed_set = load_list_from_file(human_ip_verification_whitelist_file_path)
 else:
     single_ip_allowed_set = set()
 

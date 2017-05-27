@@ -444,3 +444,22 @@ def inject_content_head_last(html, content):
         return html
 
     return html[:head_end_pos] + content + html[head_end_pos:]
+
+def load_list_from_file(file):
+    """从文件加载ip白名单"""
+    set_buff = set()
+    if os.path.exists(zmirror_root(file)):
+        with open(zmirror_root(file), 'r', encoding='utf-8') as fp:
+            set_buff.add(fp.readline().strip())
+    return set_buff
+
+
+def append_list_to_file(file,ip_to_allow):
+    """写入ip白名单到文件"""
+    try:
+        with open(zmirror_root(file), 'a', encoding='utf-8') as fp:
+            fp.write(ip_to_allow + '\n')
+    except:  # coverage: exclude
+        errprint('Unable to write whitelist file')
+        traceback.print_exc()
+

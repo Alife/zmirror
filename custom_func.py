@@ -77,36 +77,81 @@ regex_youtube_video_c_videoplayback_resolve = re.compile(
     r'''(?P<prefix>r\d+---sn-[a-z0-9]{8})\.c\.youtube\.com/videoplayback\?''',
     flags=re.IGNORECASE)
 
-
-def custom_response_text_rewriter(raw_text, content_mime, remote_url):
+import urllib
+#根据URL获取域名
+def getdomain(url):
+    proto, rest = urllib.request.splittype(url)
+    host, rest = urllib.request.splithost(rest)
+    return host
+    
+def custom_response_text_rewriter(resp_text, content_mime, remote_url):
     # if 'html' in content_mime or 'x-www-form-urlencoded' in content_mime:
-    raw_text = regex_youtube_video_videoplayback_resolve.sub(
+    resp_text = regex_youtube_video_videoplayback_resolve.sub(
         ('http\g<percent>3A\g<percent>2F\g<percent>2F' if my_host_scheme == 'http://' else '') +
-        video_cdn_domain + '\g<percent>2Fvideoplayback\g<percent>3Fewmytbserver\g<percent>3D\g<prefix>\g<percent>26', raw_text)
-    raw_text = regex_youtube_video_url_resolve.sub(
-        ('http:\g<escape_slash>/\g<escape_slash>/' if my_host_scheme == 'http://' else '') + video_cdn_domain, raw_text)
+        video_cdn_domain + '\g<percent>2Fvideoplayback\g<percent>3Fewmytbserver\g<percent>3D\g<prefix>\g<percent>26', resp_text)
+    resp_text = regex_youtube_video_url_resolve.sub(
+        ('http:\g<escape_slash>/\g<escape_slash>/' if my_host_scheme == 'http://' else '') + video_cdn_domain, resp_text)
 
-    raw_text = regex_youtube_video_c_videoplayback_resolve.sub(
+    resp_text = regex_youtube_video_c_videoplayback_resolve.sub(
         ('http://' if my_host_scheme == 'http://' else '') +
-        video_cdn_domain + '/videoplayback?ewmytbserver=\g<prefix>&', raw_text)
+        video_cdn_domain + '/videoplayback?ewmytbserver=\g<prefix>&', resp_text)
 
     if 'javascript' in content_mime:
-        raw_text = raw_text.replace(r'\\.googlevideo\\.com$', r".*?\\."
+        resp_text = resp_text.replace(r'\\.googlevideo\\.com$', r".*?\\."
                                     # + my_host_name_root.replace('.',r'\\.')
                                     + videocdn_video_root_domain.replace('.', r'\\.')
                                     + '$')
 
         _buff = re.escape(videocdn_video_root_domain) + '|' + re.escape(my_host_name_root)
-        raw_text = raw_text.replace(r'-nocookie)?\.com\/|(m\.)?[a-z0-9\-]',
+        resp_text = resp_text.replace(r'-nocookie)?\.com\/|(m\.)?[a-z0-9\-]',
                                     r'-nocookie)?\.com\/|' + _buff + r'|(m\.)?[a-z0-9\-]')  # xp
 
-        raw_text = raw_text.replace(r'googlevideo\.com|play\.google\.com|',
+        resp_text = resp_text.replace(r'googlevideo\.com|play\.google\.com|',
                                     r'googlevideo\.com|' + _buff + r'|play\.google\.com|')  # hr
 
-        raw_text = raw_text.replace(r'prod\.google\.com|sandbox\.google\.com',
+        resp_text = resp_text.replace(r'prod\.google\.com|sandbox\.google\.com',
                                     r'prod\.google\.com|' + _buff + r'|sandbox\.google\.com')  # gx
 
-        raw_text = raw_text.replace(r'corp\.google\.com|borg\.google\.com',
-                                    r'corp\.google\.com|' + _buff + r'|borg\.google\.com')  # Saa
+        resp_text = resp_text.replace(r'corp\.google\.com|borg\.google\.com',
+        r'corp\.google\.com|' + _buff + r'|borg\.google\.com')  # Saa
 
-    return raw_text
+    #if resp_text.find("videoplayback") > -1:
+    #    if resp_text.find(".googlevideo.com") > -1:
+    #        print(resp_text)
+    
+    #protocol = ""
+    #if parse.is_https:
+    #    protocol = "http-"
+    #parse.is_https
+    #resp_text = resp_text.replace('href=\"/\"', 'href=\"' + my_host_name + '/extdomains/' + target_domain_root + '/\"')
+    #resp_text = resp_text.replace('href=\"/', 'href=\"//' + my_host_name + '/extdomains/' + protocol + parse.remote_domain + '/')
+    #resp_text = resp_text.replace('src=\"/', 'src=\"//' + my_host_name + '/extdomains/' + protocol + parse.remote_domain + '/')
+ 
+    file = '@html'
+    #with open(file+'.html', mode='w',encoding='utf-8') as pubilc_file:
+    #    pubilc_file.write(resp_text)
+
+    # 去除代码网址的 http: ,统一所有代理链接协议
+    resp_text = resp_text.replace('http%3A%2F%2F' + my_host_name, '%2F%2F' + my_host_name)
+    resp_text = resp_text.replace('http:\\/\\/' + my_host_name + '\\/', '\/\/'+ my_host_name + '\/')
+    resp_text = resp_text.replace('http://' + my_host_name + '/','//'+ my_host_name + '/')
+
+    resp_text = resp_text.replace('http://static.tumblr.com','//static.tumblr.com')
+    resp_text = resp_text.replace('http://assets.tumblr.com','//assets.tumblr.com')
+    resp_text = resp_text.replace('http://media.tumblr.com','//media.tumblr.com')
+
+    #with open(file+'1.html', mode='w',encoding='utf-8') as pubilc_file:
+    #    pubilc_file.write(resp_text)
+
+    #infoprint('resp_text',resp_text.encode().decode())
+    
+    #with open('@resp_text 1.html', mode='w') as pubilc_file:
+    #    pubilc_file.write(resp_text)
+    if 'mwm/headers-location' == content_mime and resp_text.startswith("http://"):
+        domain=getdomain(resp_text)
+        if domain not in force_https_domains_whitelist:
+            force_https_domains_whitelist.add(domain)
+            #is_ip_not_in_allow_range.cache_clear()
+            append_list_to_file('automatic_force_https_domains_whitelist.txt',domain)
+
+    return resp_text
