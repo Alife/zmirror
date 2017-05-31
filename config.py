@@ -34,7 +34,7 @@ my_host_port = None  # None表示使用默认端口, 可以设置成非标准端
 
 developer_temporary_disable_ssrf_prevention = True
 custom_text_rewriter_enable = True
-verbose_level = 3
+verbose_level = 2
 local_cache_enable = True
 
 # ############## Target Domain Settings ##############
@@ -65,9 +65,6 @@ domains_whitelist_ignore_glob_list = (
     'static.tumblr.com','*.static.tumblr.com',
     'api.tumblr.com','mx.tumblr.com','px.srvcs.tumblr.com',
     'ls.srvcs.tumblr.com','vt.tumblr.com','cynicallys.tumblr.com',
-)
-domains_whitelist_http2https_glob_list = (
-    '*.tumblr.com',
 )
 # ############## Proxy Settings ##############
 # 如果你在墙内使用本配置文件, 请指定一个墙外的http代理

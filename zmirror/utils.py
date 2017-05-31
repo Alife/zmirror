@@ -450,16 +450,19 @@ def load_list_from_file(file):
     set_buff = set()
     if os.path.exists(zmirror_root(file)):
         with open(zmirror_root(file), 'r', encoding='utf-8') as fp:
-            set_buff.add(fp.readline().strip())
+            set_buff=set([line.strip() for line in fp])
     return set_buff
 
 
 def append_list_to_file(file,ip_to_allow):
     """写入ip白名单到文件"""
-    try:
-        with open(zmirror_root(file), 'a', encoding='utf-8') as fp:
-            fp.write(ip_to_allow + '\n')
-    except:  # coverage: exclude
-        errprint('Unable to write whitelist file')
-        traceback.print_exc()
+    with open(zmirror_root(file), 'a', encoding='utf-8') as fp:
+        fp.write(ip_to_allow + '\n')
 
+
+import urllib
+#根据URL获取域名
+def getdomain(url):
+    proto, rest = urllib.request.splittype(url)
+    host, rest = urllib.request.splithost(rest)
+    return host

@@ -138,7 +138,8 @@ allowed_domains_set = external_domains_set.copy()
 allowed_domains_set.add(target_domain)
 for _domain in external_domains:  # for support domain with port
     allowed_domains_set.add(urlsplit('http://' + _domain).hostname)
-force_https_domains_whitelist = load_list_from_file('automatic_force_https_domains_whitelist')
+global force_https_domains_whitelist
+force_https_domains_whitelist = load_list_from_file('automatic_force_https_domains_whitelist.txt')
 
 domain_alias_to_target_set = set()  # 那些被视为主域名的域名, 如 www.google.com和google.com可以都被视为主域名
 domain_alias_to_target_set.add(target_domain)
@@ -764,6 +765,12 @@ convert_to_mirror_url = encode_mirror_url
 
 def is_target_domain_use_https(domain):
     """请求目标域名时是否使用https"""
+    print("force_https_domains")
+    print(force_https_domains)
+    print("domain")
+    print(domain)
+    print("force_https_domains_whitelist")
+    print(force_https_domains_whitelist)
     if force_https_domains == 'NONE':
         if domain in force_https_domains_whitelist:
             return True
@@ -1345,6 +1352,12 @@ def copy_response(is_streamed=False):
                 # 对于重定向的 location 的重写, 改写为zmirror的url
                 _location = parse.remote_response.headers[header_key]
 
+                if _location.startswith("http://"):
+                    _domain=getdomain(_location)
+                    if _domain not in force_https_domains_whitelist:
+                        force_https_domains_whitelist.add(_domain)
+                        append_list_to_file('automatic_force_https_domains_whitelist.txt',_domain)
+               
                 if custom_text_rewriter_enable:
                     # location头也会调用自定义重写函数进行重写, 并且有一个特殊的MIME: mwm/headers-location
                     # 这部分以后可能会单独独立出一个自定义重写函数

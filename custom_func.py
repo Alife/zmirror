@@ -77,12 +77,6 @@ regex_youtube_video_c_videoplayback_resolve = re.compile(
     r'''(?P<prefix>r\d+---sn-[a-z0-9]{8})\.c\.youtube\.com/videoplayback\?''',
     flags=re.IGNORECASE)
 
-import urllib
-#根据URL获取域名
-def getdomain(url):
-    proto, rest = urllib.request.splittype(url)
-    host, rest = urllib.request.splithost(rest)
-    return host
     
 def custom_response_text_rewriter(resp_text, content_mime, remote_url):
     # if 'html' in content_mime or 'x-www-form-urlencoded' in content_mime:
@@ -147,11 +141,5 @@ def custom_response_text_rewriter(resp_text, content_mime, remote_url):
     
     #with open('@resp_text 1.html', mode='w') as pubilc_file:
     #    pubilc_file.write(resp_text)
-    if 'mwm/headers-location' == content_mime and resp_text.startswith("http://"):
-        domain=getdomain(resp_text)
-        if domain not in force_https_domains_whitelist:
-            force_https_domains_whitelist.add(domain)
-            #is_ip_not_in_allow_range.cache_clear()
-            append_list_to_file('automatic_force_https_domains_whitelist.txt',domain)
 
     return resp_text
