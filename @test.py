@@ -7,7 +7,7 @@ import urllib
 from config import *
 from zmirror.zmirror import *
 import custom_func
-from winreg import *
+import os
 
 #from zmirror.zmirror import *
 
@@ -20,8 +20,7 @@ class string(str):
         return self  
     def show(self):  
         print("My name is", self.name, "and I am", self.age, "years old.")  
-    #根据URL获取域名
-    def getDomain(self):
+    def getDomain(self):#根据URL获取域名
         proto, rest = urllib.request.splittype(self)
         host, rest = urllib.request.splithost(rest)
         self.domain = host  
@@ -31,19 +30,33 @@ class string(str):
         print(self.domain)
         return self
     def getSysProxy(self):
-        key=OpenKey(HKEY_CURRENT_USER,"Software\Microsoft\Windows\CurrentVersion\Internet Settings\Connections",0,KEY_ALL_ACCESS)
-        (value, regtype) = QueryValueEx(key, "DefaultConnectionSettings")
-        print(key)
-        print(value)
-        print()
-        print(value[:16])
-        #if regtype == REG_BINARY:
-        #     value = value[:8].decode() + chr(0x03) + value[9:].decode()
-        SetValueEx(key, "DefaultConnectionSettings", None, regtype, value)
-        return self
+        if os.name == 'nt':
+            try:
+                #from winreg import *
+                key=OpenKey(HKEY_CURRENT_USER,"Software\Microsoft\Windows\CurrentVersion\Internet Settings\Connections",0,KEY_ALL_ACCESS)
+                (value, regtype) = QueryValueEx(key, "DefaultConnectionSettings")
+                print(key)
+                print(value)
+                print()
+                print(value[:16])
+                #if regtype == REG_BINARY:
+                #     value = value[:8].decode() + chr(0x03) + value[9:].decode()
+                SetValueEx(key, "DefaultConnectionSettings", None, regtype, value)
+            except:
+                return ''
   
 p = string("http://www.cnblogs.com/goodhacker/admin/EditPosts.aspx?opt=1")  
 p.name("Li Lei").age(15).showDomain().show()  
+
+import urllib.request
+req = urllib.request.Request("https://groangao.pixnet.net/blog/category/507361", method="HEAD")
+resp = urllib.request.urlopen(req)
+print("resp "+str(resp))
+print("resp.url "+str(resp.url))
+print("resp.status "+str(resp.status))
+print("resp.headers\n"+str(resp.headers))
+a = resp.read()
+print("a.length "+str(len(a)))
 
 if __name__ == '__main__':
     os.environ['ZMIRROR_UNITTEST'] = "True"

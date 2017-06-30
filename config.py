@@ -56,7 +56,7 @@ domains_whitelist_auto_add_glob_list = (
     '*.gstatic.com','*.ggpht.com','*.gmail.com',
     '*.youtube.com','*.youtube*.com','*.ytimg.com',
     '*.android.com','*.wikipedia.org',
-    '*.tumblr.com','*.t66y.com',
+    '*.tumblr.com','*.t66y.com',"*.instagram.com",
 )
 domains_whitelist_ignore_glob_list = (
     'tumblr.co','tumblr.com','www.tumblr.com',

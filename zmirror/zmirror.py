@@ -90,6 +90,8 @@ else:
     target_domain = target_domain.strip("./ \t").replace("https://", "").replace("http://", "")
     infoprint('config file found, mirroring: ', target_domain)
 
+from Rss import *
+
 if unittest_mode:
     import importlib
 
@@ -765,12 +767,6 @@ convert_to_mirror_url = encode_mirror_url
 
 def is_target_domain_use_https(domain):
     """请求目标域名时是否使用https"""
-    print("force_https_domains")
-    print(force_https_domains)
-    print("domain")
-    print(domain)
-    print("force_https_domains_whitelist")
-    print(force_https_domains_whitelist)
     if force_https_domains == 'NONE':
         if domain in force_https_domains_whitelist:
             return True
@@ -2521,11 +2517,11 @@ This site: {my_domain}
            my_domain=my_host_name),
                     content_type='text/plain')
 
-
 # ################# End Flask #################
 
 # ################# Begin Post (auto)Exec Section #################
 
+# ########### domain replacer prefix string buff ###############
 # ########### domain replacer prefix string buff ###############
 prefix_buff = {}
 for _domain in allowed_domains_set:
