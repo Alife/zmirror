@@ -45,11 +45,17 @@ class string(str):
             except:
                 return ''
   
-p = string("http://www.cnblogs.com/goodhacker/admin/EditPosts.aspx?opt=1")  
+url = 'https://219.76.4.10'
+url = 'http://www.cnblogs.com/goodhacker/admin/EditPosts.aspx?opt=1'
+headers = {'Host': 'tumblr.com'}
+r = requests.get(url, headers=headers)
+print(r.text)
+
+p = string(url)  
 p.name("Li Lei").age(15).showDomain().show()  
 
 import urllib.request
-req = urllib.request.Request("https://groangao.pixnet.net/blog/category/507361", method="HEAD")
+req = urllib.request.Request(p, method="HEAD")
 resp = urllib.request.urlopen(req)
 print("resp "+str(resp))
 print("resp.url "+str(resp.url))

@@ -90,7 +90,7 @@ else:
     target_domain = target_domain.strip("./ \t").replace("https://", "").replace("http://", "")
     infoprint('config file found, mirroring: ', target_domain)
 
-from Rss import *
+from rss.Rss import *
 
 if unittest_mode:
     import importlib
